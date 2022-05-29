@@ -1,13 +1,13 @@
 import { api } from "@/services";
 import { formatValue } from "@/utils";
 import { Container } from "./styles";
-import { Modal } from "@/components";
+import { Modal, Input } from "@/components";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery } from "react-query";
 import { FiArrowLeftCircle, FiArrowRightCircle, FiEdit3, FiPlusCircle, FiXCircle } from "react-icons/fi"
-import { useForm, SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
+import { Form } from "@unform/web";
 
 type Motorcycle = {
   id: string
@@ -19,7 +19,7 @@ type Motorcycle = {
   image_url: string
 }
 
-type Inputs = {
+type FormData = {
   brand: string
   model: string
   price: number
@@ -31,24 +31,34 @@ type Inputs = {
 export function MotorcycleColumn() {
   const [page, setPage] = useState(1)
   const [modalIsVisible, setModalIsVisible] = useState(false)
-  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = async data => {
-    try {
-      await api.post('/motorcycles', data)
-      refetch()
-      reset()
-      setModalIsVisible(false)
-      toast('Motocicleta adicionada com sucesso!', { type: 'success' })
-    } catch(err) {
-      toast('Erro ao adicionar motocicleta!', { type: 'error' })
-    }
-  };
+  const [selectedMotorcycle, setSelectedMotorcycle] = useState<Motorcycle>()
   const { data, refetch } = useQuery(['motorcycleData', page], async () => {
     return api.get<Motorcycle[]>('/motorcycles', {
       params: { per_page: 4, page: page }
     })
   })
-  const onDelete = async (id: string) => {
+  const handleAdd = useCallback(async (data: FormData, { reset }) => {
+    try {
+      await api.post('/motorcycles', data)
+      refetch()
+      setModalIsVisible(false)
+      reset()
+      toast('Motocicleta adicionada com sucesso!', { type: 'success' })
+    } catch(err) {
+      toast('Erro ao adicionar motocicleta!', { type: 'error' })
+    }
+  }, [refetch])  
+  const handleUpdate = useCallback(async (data: FormData) => {
+    try {      
+      await api.put(`/motorcycles/${selectedMotorcycle?.id}`, data)
+      refetch()
+      setSelectedMotorcycle(undefined)
+      toast('Motocicleta atualizada com sucesso!', { type: 'success' })
+    } catch(err) {
+      toast('Erro ao atualizar motocicleta!', { type: 'error' })
+    }
+  }, [refetch, selectedMotorcycle?.id])
+  const handleDelete = async (id: string) => {
     try {      
       await api.delete(`/motorcycles/${id}`)
       refetch()
@@ -66,33 +76,30 @@ export function MotorcycleColumn() {
         onClose={() => setModalIsVisible(false)}
         title="Cadastrar motocicleta"  
       >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="input">
-            <label htmlFor="title">Marca:</label>
-            <input {...register('brand', { required: true })} />
-          </div>
-          <div className="input">
-            <label htmlFor="model">Modelo:</label>
-            <input {...register('model', { required: true })} />
-          </div>
-          <div className="input">
-            <label htmlFor="price">Preço: {errors.price && <span>This field is required</span>}</label>
-            <input {...register('price', { required: true,  })} />
-          </div>
-          <div className="input">
-            <label htmlFor="engine_capacity">Cilindrada:</label>
-            <input {...register('engine_capacity', { required: true })} />
-          </div>
-          <div className="input">
-            <label htmlFor="maximum_power">Capacidade máxima:</label>
-            <input {...register('maximum_power', { required: true })} />
-          </div>
-          <div className="input">
-            <label htmlFor="image_url">URL da Imagem:</label>
-            <input {...register('image_url', { required: true })} />
-          </div>
-          <button type="submit">Enviar</button>
-        </form>
+        <Form onSubmit={handleAdd}>
+          <Input name="brand" title="Marca" />
+          <Input name="model" title="Modelo" />
+          <Input name="price" title="Preço" type="number" />
+          <Input name="engine_capacity" title="Capacidade do motor" type="number" />
+          <Input name="maximum_power" title="Potência máxima" type="number" />
+          <Input name="image_url" title="URL da imagem" />
+          <button type="submit">Cadastrar</button>
+        </Form>
+      </Modal>
+      <Modal
+        isVisible={selectedMotorcycle !== undefined}
+        onClose={() => setSelectedMotorcycle(undefined)}
+        title="Atualizar motocicleta"  
+      >
+        <Form onSubmit={handleUpdate} initialData={selectedMotorcycle}>
+          <Input name="brand" title="Marca" />
+          <Input name="model" title="Modelo" />
+          <Input name="price" title="Preço" type="number" />
+          <Input name="engine_capacity" title="Capacidade do motor" type="number" />
+          <Input name="maximum_power" title="Potência máxima" type="number" />
+          <Input name="image_url" title="URL da imagem" />
+          <button type="submit">Cadastrar</button>
+        </Form>
       </Modal>
       <div className="column-header">
         <h1><span>&bull;</span> Motocicletas</h1>
@@ -103,14 +110,17 @@ export function MotorcycleColumn() {
       </div>
       {motos.map(moto => (
         <div key={moto.id} className="item">
-          <img src={moto.image_url} width="100" height="auto" />
-          <div className="info">
-            <h1>{moto.brand} - {moto.model}</h1>
-            <p>{moto.engine_capacity} cilindrada com {moto.maximum_power } cavalos de potência</p>
-            <p className="featured">{formatValue(Number(moto.price))}</p>
-          </div>
+          <div className="content">
+            <img src={moto.image_url} width="100" height="auto" />
+            <div className="info">
+              <h1>{moto.brand} - {moto.model}</h1>
+              <p>{moto.engine_capacity} cilindrada com {moto.maximum_power } cavalos de potência</p>
+              <p className="featured">{formatValue(Number(moto.price))}</p>
+            </div>
+          </div>          
           <div className="actions">
-            <button onClick={() => onDelete(moto.id)}><FiXCircle size={22} /></button>
+            <button onClick={() => setSelectedMotorcycle(moto)}><FiEdit3 size={22} /></button>
+            <button onClick={() => handleDelete(moto.id)}><FiXCircle size={22} /></button>
           </div>
         </div>
       ))}

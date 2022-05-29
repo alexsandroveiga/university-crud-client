@@ -47,10 +47,9 @@ export const Container = styled.div`
     background: #ffffff;
     border-radius: 0.25rem;
     position: relative;
-    padding: 1rem 1rem 1rem calc(2rem + 2px);
+    padding: 0;
     display: flex;
-    gap: 1rem;
-    flex: 1;
+    overflow: hidden;
 
     &:before {
       content: '';
@@ -89,11 +88,21 @@ export const Container = styled.div`
       }
     }
 
+    .content {
+      display: flex;
+      flex: 1;
+      padding: 1rem 1rem 1rem calc(2rem + 2px);
+      gap: 1rem;
+    }
+
     .actions {
-      display: flex;      
-      position: absolute;
-      top: 0.25rem;
-      right: 0.25rem;
+      display: flex;
+      background: #3a86ff;
+      width: 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
 
       button {
         width: 2rem;
@@ -107,7 +116,8 @@ export const Container = styled.div`
 
         svg {
           display: block;
-          color: #ef476f;;
+          color: #ffffff;
+          opacity: 1
         }
       }
     }

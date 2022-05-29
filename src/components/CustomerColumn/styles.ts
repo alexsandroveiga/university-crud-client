@@ -47,9 +47,9 @@ export const Container = styled.div`
     background: #ffffff;
     border-radius: 0.25rem;
     position: relative;
-    padding: 1rem 1rem 1rem calc(2rem + 2px);
+    padding: 0;
     display: flex;
-    gap: 1rem;
+    overflow: hidden;
 
     &:before {
       content: '';
@@ -80,6 +80,7 @@ export const Container = styled.div`
 
     p {
       color: #aaa;
+      word-break: break-all;
 
       &.featured {
         font-weight: 500;
@@ -88,11 +89,21 @@ export const Container = styled.div`
       }
     }
 
+    .content {
+      display: flex;
+      flex: 1;
+      padding: 1rem 1rem 1rem calc(2rem + 2px);
+      gap: 1rem;
+    }
+
     .actions {
-      display: flex;      
-      position: absolute;
-      top: 0.25rem;
-      right: 0.25rem;
+      display: flex;
+      background: #f35b04;
+      width: 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
 
       button {
         width: 2rem;
@@ -106,7 +117,8 @@ export const Container = styled.div`
 
         svg {
           display: block;
-          color: #ef476f;;
+          color: #ffffff;
+          opacity: 1
         }
       }
     }
