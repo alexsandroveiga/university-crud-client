@@ -1,10 +1,13 @@
 import { api } from "@/services"
 import { Header } from "@/components"
-import { Container, Content, Cart } from "./styles"
+import { Container, Content, Cart, Grid, Heading } from "./styles"
 import { useCart } from "@/contexts"
 
-import { useEffect, useState } from "react"
-import { FiArrowDownCircle, FiArrowUpCircle, FiShoppingCart, FiXCircle } from 'react-icons/fi'
+import { useState } from "react"
+import { FiArrowDownCircle, FiArrowUpCircle, FiShoppingBag, FiShoppingCart, FiXCircle } from 'react-icons/fi'
+import { useQuery } from "react-query";
+import { useDebounce } from "@/hooks"
+import { formatValue } from "@/utils"
 
 type Motorcycle = {
   id: string
@@ -14,25 +17,27 @@ type Motorcycle = {
   engine_capacity: string
   maximum_power: string
   image_url: string
+  quantity: number
 }
 
 export function Home() {
+  const [page] = useState(1)
   const { addToCart, cart, increaseQuantity, decreaseQuantity, removeFromCart, total } = useCart()
-  const [motos, setMotos] = useState<Motorcycle[]>([])
   const [cartIsVisible, setCartIsVisible] = useState(false)
+  const [search, setSearch] = useState('')
+  const debouncedSearchTerm = useDebounce(search, 500)
 
-  useEffect(() => {
-    async function loadMotos() {
-      const { data } = await api.get('/motorcycles')
-      setMotos(data)
-    }
-    loadMotos()
-  }, [])
+  const { data, refetch, isLoading, error } = useQuery(['motorcycleDataStore', page, debouncedSearchTerm], async () => {
+    return api.get<Motorcycle[]>('/motorcycles', {
+      params: { per_page: 6, page: 1, search: debouncedSearchTerm }
+    })
+  })
+  const motos = data?.data || []
 
   return (
     <Container>
       <Header>
-        <h1>loja &bull;&bull;&bull;</h1> 
+        <h1>crud &bull;&bull;&bull;</h1> 
         <a className="cart" onClick={() => setCartIsVisible(!cartIsVisible)}>
           <FiShoppingCart />
           {cart.length > 0 && <span>{cart.reduce((acumulator, { quantity }) => acumulator + quantity, 0)}</span>}
@@ -63,18 +68,35 @@ export function Home() {
         ))}
         </div>        
       </Cart>
-      <Content>
-        <h1>Loja</h1>
-        {motos?.map(moto => (
-          <div key={moto.id}>
-            <img src={moto.image_url} width="100" height="auto" />
-            <h1>{moto.brand} - {moto.price}</h1>
-            <p>{moto.price}</p>
 
-            <button onClick={() => addToCart(moto)}>Adicionar ao carrinho</button>
-          </div>
-        ))}
-      </Content>
+      <Heading>
+        <h1><span>Motos</span>Destaques</h1>
+      </Heading>
+      <Grid>
+        {motos.map((moto, index) => {
+          const quantity = moto.quantity - (cart.find(({ item: { id } }) => id === moto.id)?.quantity ?? 0)
+          return (
+            <div className="item" key={moto.id}>
+              <div className="item-image">
+                <img src={!moto.image_url ? `https://picsum.photos/id/${index + 30}/500/500` : moto.image_url} />
+              </div>
+              <div className="item-info">
+                <h1>{moto.brand} - {moto.model}</h1>
+                <span className="quantity">
+                  {quantity === 0 ? 'Produto esgotado' : `${quantity} em estoque`}
+                </span>
+                <div>
+                  <span>Preço</span>
+                  <p>{formatValue(Number(moto.price))}</p>
+                </div>
+                <button onClick={() => addToCart(moto)} className="add-to-cart" disabled={quantity === 0}>
+                  <FiShoppingBag size={32} />
+                </button>
+              </div>
+            </div>
+          )
+        })}
+      </Grid>
     </Container>
   )
 }

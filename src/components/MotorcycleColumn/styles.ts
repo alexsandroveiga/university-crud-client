@@ -1,4 +1,14 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+`;
 
 export const Container = styled.div`
   width: 100%;
@@ -8,13 +18,32 @@ export const Container = styled.div`
     justify-content: space-between;
     margin-bottom: 1rem;
     align-items: center;
+    flex-flow: row wrap;
 
     h1 {
       line-height: 1;
       font-size: 1.2rem;
+      width: 100%;
+      margin-bottom: 0.5rem;
 
       span {
-        color: #3a86ff;
+        color: #ef233c;
+      }
+    }
+
+    input {
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      margin-right: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 1.5rem;
+      margin-right: 0.5rem;
+      flex: 1;
+
+      &:focus {
+        border-color: #ef233c;
       }
     }
 
@@ -34,7 +63,7 @@ export const Container = styled.div`
 
       svg {
         display: block;
-        color: #3a86ff;
+        color: #ef233c;
       }
     }
 
@@ -53,7 +82,7 @@ export const Container = styled.div`
 
     &:before {
       content: '';
-      background: #3a86ff;
+      background: #ef233c;
       width: 2px;
       height: calc(100% - 2rem);
       left: 1rem;
@@ -83,7 +112,7 @@ export const Container = styled.div`
 
       &.featured {
         font-weight: 500;
-        color: #3a86ff;
+        color: #ef233c;
         margin-top: 0.5rem;
       }
     }
@@ -97,7 +126,7 @@ export const Container = styled.div`
 
     .actions {
       display: flex;
-      background: #3a86ff;
+      background: #ef233c;
       width: 4rem;
       display: flex;
       align-items: center;
@@ -123,7 +152,34 @@ export const Container = styled.div`
     }
   }
 
-  @media only screen and (min-width: 48em) {}
+  .message {
+    background: #8338ec;
+    color: #fff;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-weight: 500; 
+
+    svg {
+      display: block;
+      opacity: 0.8;
+
+      &.loading {
+        animation: ${rotate} 1s linear infinite;
+      }
+    }
+  }
+
+  @media only screen and (min-width: 48em) {
+    /* .column-header {
+      h1 {
+        width: auto;
+        margin-bottom: 0;
+      }
+    } */
+  }
 
   @media only screen and (min-width: 67em) {
     width: calc(50% - 2rem);

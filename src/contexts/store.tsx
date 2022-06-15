@@ -13,6 +13,7 @@ type CartContextData = {
   removeFromCart: (id: string) => void
   increaseQuantity: (id: string) => void
   decreaseQuantity: (id: string) => void
+  emptyCart: () => void
   total: number
 }
 
@@ -66,6 +67,11 @@ function StoreProvider ({ children }: StoreProviderProps) {
     localStorage.setItem('@CRUD:cart', JSON.stringify(cart))
   }, [cart])
 
+  const emptyCart = useCallback(() => {
+    setCart([])
+    localStorage.removeItem('@CRUD:cart')
+  }, [])
+
   const removeFromCart = useCallback((id: string) => {
     const updatedCart = cart.filter(item => item.item.id !== id)
     setCart(updatedCart)
@@ -112,8 +118,9 @@ function StoreProvider ({ children }: StoreProviderProps) {
     addToCart,
     removeFromCart,
     increaseQuantity,
-    decreaseQuantity
-  }), [addToCart, cart, decreaseQuantity, increaseQuantity, removeFromCart, total])
+    decreaseQuantity,
+    emptyCart
+  }), [addToCart, cart, decreaseQuantity, increaseQuantity, removeFromCart, total, emptyCart])
 
   return (
     <CartContext.Provider value={value}>{children}</CartContext.Provider>

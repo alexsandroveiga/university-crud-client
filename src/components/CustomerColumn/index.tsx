@@ -1,12 +1,14 @@
 import { api } from "@/services";
 import { Container } from "./styles";
 import { Modal, Input } from "@/components";
+import { useDebounce } from "@/hooks";
 
 import { useQuery } from "react-query";
 import { useCallback, useState } from "react";
-import { FiArrowLeftCircle, FiArrowRightCircle, FiEdit3, FiPlusCircle, FiXCircle } from "react-icons/fi"
+import { FiAlertCircle, FiArrowLeftCircle, FiArrowRightCircle, FiEdit3, FiInfo, FiPlusCircle, FiSearch, FiXCircle } from "react-icons/fi"
 import { toast } from "react-toastify";
 import { Form } from "@unform/web";
+import { ImSpinner8 } from "react-icons/im";
 
 type Customer = {
   id: string
@@ -37,11 +39,13 @@ type FormData = {
 
 export function CustomerColumn() {
   const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const debouncedSearchTerm = useDebounce(search, 500)
   const [modalIsVisible, setModalIsVisible] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer>()
-  const { data, refetch } = useQuery(['customerData', page], async () => {
+  const { data, refetch, isLoading, error } = useQuery(['customerData', debouncedSearchTerm], async () => {
     return api.get<Customer[]>('/customers', {
-      params: { per_page: 4, page: page }
+      params: { per_page: 5, page: page, search: debouncedSearchTerm }
     })
   })
   const handleAdd = useCallback(async (data: FormData, { reset }) => {
@@ -104,7 +108,7 @@ export function CustomerColumn() {
         title="Atualizar cliente"  
       >
         <Form onSubmit={handleUpdate} initialData={selectedCustomer}>
-        <Input name="name" title="Nome" />
+          <Input name="name" title="Nome" />
           <Input name="email" title="E-mail" />
           <Input name="address" title="Endereço" />
           <Input name="phone" title="Telefone" />
@@ -118,16 +122,31 @@ export function CustomerColumn() {
         </Form>
       </Modal>
       <div className="column-header">
-        <h1><span>&bull;</span> Clientes</h1>
+        <h1><span>&bull;</span> Nossos clientes</h1>
         <em />
+        <input type="text" placeholder="Buscar" onChange={e => setSearch(e.target.value)} />
         <button onClick={() => setModalIsVisible(true)}><FiPlusCircle size={22} /></button>
         <button onClick={() => setPage(page - 1)} disabled={page <= 1}><FiArrowLeftCircle size={22} /></button>
         <button onClick={() => setPage(page + 1)} disabled={page >= Number(data?.headers['x-total-pages'])}><FiArrowRightCircle size={22} /></button>
       </div>
-      {customers?.map(customer => (
+      {error && (
+        <div className="message">
+          <FiAlertCircle size={32} /> Ocorreu um erro inesperado.
+        </div>
+      )}
+      {!error && isLoading && (
+        <div className="message">
+          <ImSpinner8 size={32} className="loading" /> Carregando...
+        </div>
+      )}
+      {!error && !isLoading && !customers.length ? (
+        <div className="message">
+          <FiInfo size={32} /> Nenhum cliente encontrado.
+        </div>
+      ) : customers?.map((customer, index) => (
         <div key={customer.id} className="item">
           <div className="content">
-            <img src={customer.avatar_url} width="100" height="auto" />
+            <img src={!customer.avatar_url ? `https://picsum.photos/id/${index + 1}/500/500` : customer.avatar_url} width="100" height="auto" />
             <div className="info">
               <h1>{customer.name}</h1>
               <p>{customer.email}</p>

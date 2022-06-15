@@ -43,7 +43,7 @@ export const Container = styled.div`
       flex: 1;
 
       &:focus {
-        border-color: #3a86ff;
+        border-color: #ef233c;
       }
     }
 
@@ -92,7 +92,7 @@ export const Container = styled.div`
     }
 
     & + .item {
-      margin-top: 2rem;
+      margin-top: 1rem;
     }
 
     img {
@@ -109,7 +109,6 @@ export const Container = styled.div`
 
     p {
       color: #aaa;
-      word-break: break-all;
 
       &.featured {
         font-weight: 500;
@@ -147,7 +146,7 @@ export const Container = styled.div`
         svg {
           display: block;
           color: #ffffff;
-          opacity: 1;
+          opacity: 1
         }
       }
     }
@@ -173,11 +172,10 @@ export const Container = styled.div`
     }
   }
 
-  @media only screen and (min-width: 48em) {
-  }
+  @media only screen and (min-width: 48em) {}
 
   @media only screen and (min-width: 67em) {
-    width: calc(50% - 2rem);   
+    width: calc(33.3333333333% - 2.66666666667rem);
 
     .item + .item {
       margin-top: 2rem;
