@@ -36,13 +36,7 @@ export function Home() {
 
   return (
     <Container>
-      <Header>
-        <h1>crud &bull;&bull;&bull;</h1> 
-        <a className="cart" onClick={() => setCartIsVisible(!cartIsVisible)}>
-          <FiShoppingCart />
-          {cart.length > 0 && <span>{cart.reduce((acumulator, { quantity }) => acumulator + quantity, 0)}</span>}
-        </a>
-      </Header>
+      <Header />
 
       <Cart className={cartIsVisible ? 'visible' : ''} >
         <h1>Carrinho</h1>
