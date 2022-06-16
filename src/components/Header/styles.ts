@@ -13,7 +13,7 @@ export const Container = styled.div`
     flex: 1;
   }
 
-  a {
+  a.button {
     color: #2196f3;
     position: relative;
 
@@ -39,6 +39,9 @@ export const Container = styled.div`
     font-size: 0.625rem;
     text-align: center;
     font-weight: 500;
+    text-decoration: none;
+    display: block;
+    color: #212529;
 
     h1 {
       font-size: 1.8rem;

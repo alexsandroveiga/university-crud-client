@@ -9,12 +9,12 @@ export function Header() {
 
   return (
     <Container>
-      <div className="logo">
+      <Link to="/" className="logo">
         <h1>crud</h1>
         <span>Alex & Felipe</span>
-      </div>
+      </Link>
       <em />
-      <Link to={pathname.includes('/cart') ? '/store' : '/cart'}>
+      <Link to={pathname.includes('/cart') ? '/' : '/cart'} className="button">
         {pathname.includes('/cart') ? <FiShoppingBag size={22} /> : (
           <>
             <FiShoppingCart size={22} />
@@ -22,9 +22,9 @@ export function Header() {
           </>
         )}
       </Link>       
-      <a href=""><FiLogOut size={22} /></a>
+      <a href="" className="button"><FiLogOut size={22} /></a>
       <div className="avatar">
-        <img src="https://pbs.twimg.com/profile_images/1519479660714856448/_s4llcJw_400x400.jpg" alt="Alexsandro Veiga" />
+        <img src="https://avatars.githubusercontent.com/u/53938111?v=4" alt="Alexsandro Veiga" />
       </div>
     </Container>
   )

@@ -9,12 +9,11 @@ import { Link, useLocation } from "react-router-dom"
 import { toast } from "react-toastify"
 
 export function Cart() {
-  const { pathname } = useLocation();
   const { cart, increaseQuantity, decreaseQuantity, total, removeFromCart, emptyCart } = useCart();
 
   async function order() {
     await api.post('/orders', {
-      customer: 'b4e05039-3fb3-4dc0-8e22-a23c7cf1308d',
+      customer: 'b579b58a-21e8-42f1-babb-540f22652d19',
       motorcycles: cart.map((cartItem) => ({
         motorcycle: cartItem.item.id,
         quantity: cartItem.quantity,
@@ -22,7 +21,7 @@ export function Cart() {
       }))
     })
     emptyCart();
-    toast('Motocicleta adicionada com sucesso!', { type: 'success' })
+    toast('Obrigado pelas compras!', { type: 'success' })
   }
 
   return (
@@ -32,7 +31,7 @@ export function Cart() {
         <div className="menu">
           <FiMenu size={22} /> Menu
         </div>
-        <a href="">Dashboard</a>
+        <Link to="/dashboard">Dashboard</Link>
       </SubNav>
       <main>
         <Items>

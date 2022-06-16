@@ -37,16 +37,15 @@ type FormData = {
   avatar_url: string
 }
 
-type Props = {
-  debouncedSearchTerm: string
-}
-
-export function CustomerColumn({ debouncedSearchTerm }: Props) {
+export function CustomerColumn() {
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const debouncedSearchTerm = useDebounce(search, 500)
   const [modalIsVisible, setModalIsVisible] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer>()
   const { data, refetch, isLoading, error } = useQuery(['customerData', debouncedSearchTerm], async () => {
     return api.get<Customer[]>('/customers', {
-      params: { per_page: 50, search: debouncedSearchTerm }
+      params: { per_page: 5, page: page, search: debouncedSearchTerm }
     })
   })
   const handleAdd = useCallback(async (data: FormData, { reset }) => {
@@ -83,7 +82,7 @@ export function CustomerColumn({ debouncedSearchTerm }: Props) {
   const customers = data?.data || []
 
   return (
-    <>
+    <Container>
       <Modal
         isVisible={modalIsVisible}
         onClose={() => setModalIsVisible(false)}
@@ -122,8 +121,13 @@ export function CustomerColumn({ debouncedSearchTerm }: Props) {
           <button type="submit">Atualizar</button>
         </Form>
       </Modal>
-      <div className="item full">
-        <button onClick={() => setModalIsVisible(true)} className="full"><FiPlusCircle size={22} /> Cadastrar novo cliente</button>
+      <div className="column-header">
+        <h1><span>&bull;</span> Nossos clientes</h1>
+        <em />
+        <input type="text" placeholder="Buscar" onChange={e => setSearch(e.target.value)} />
+        <button onClick={() => setModalIsVisible(true)}><FiPlusCircle size={22} /></button>
+        <button onClick={() => setPage(page - 1)} disabled={page <= 1}><FiArrowLeftCircle size={22} /></button>
+        <button onClick={() => setPage(page + 1)} disabled={page >= Number(data?.headers['x-total-pages'])}><FiArrowRightCircle size={22} /></button>
       </div>
       {error && (
         <div className="message">
@@ -155,6 +159,6 @@ export function CustomerColumn({ debouncedSearchTerm }: Props) {
           </div>
         </div>
       ))}
-    </>
+    </Container>
   )
 }

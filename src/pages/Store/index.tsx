@@ -4,10 +4,12 @@ import { useCart } from "@/contexts"
 import { api } from "@/services"
 import { Header } from '@/components'
 
-import { FiMenu, FiShoppingBag } from "react-icons/fi"
+import { FiAlertCircle, FiInfo, FiMenu, FiShoppingBag } from "react-icons/fi"
 import { formatValue } from "@/utils"
 import { useQuery } from "react-query"
 import { useState } from "react"
+import { ImSpinner8 } from "react-icons/im"
+import { Link } from "react-router-dom"
 
 type Motorcycle = {
   id: string
@@ -39,16 +41,31 @@ export function Store() {
         <div className="menu">
           <FiMenu size={22} /> Menu
         </div>
-        <a href="">Dashboard</a>
+        <Link to="/dashboard">Dashboard</Link>
       </SubNav>
 
       <Heading>
-        <h1>Motos <span>{motos.length}</span></h1>
+        <h1>{debouncedSearchTerm == '' ? 'Motos' : `Resultados para ${debouncedSearchTerm}`} <span>{motos.length}</span></h1>
+        <input type="text" placeholder="Buscar" onChange={e => setSearch(e.target.value)} />
       </Heading>
 
       <main>        
         <Items>
-          {motos.map((moto, index) => {
+          {error && (
+            <div className="message">
+              <FiAlertCircle size={32} /> Ocorreu um erro inesperado.
+            </div>
+          )}
+          {!error && isLoading && (
+            <div className="message">
+              <ImSpinner8 size={32} className="loading" /> Carregando...
+            </div>
+          )}
+          {!error && !isLoading && !motos.length ? (
+            <div className="message">
+              <FiInfo size={32} /> Nenhuma motocicleta encontrada.
+            </div>
+          ) : motos.map((moto, index) => {
             const quantity = moto.quantity - (cart.find(({ item: { id } }) => id === moto.id)?.quantity ?? 0)
             return (
               <div className="item" key={moto.id}>
@@ -65,7 +82,7 @@ export function Store() {
                     <p>{formatValue(Number(moto.price))}</p>
                   </div>
                   <button onClick={() => addToCart(moto)} className="add-to-cart" disabled={quantity === 0}>
-                    <FiShoppingBag size={32} />
+                    <FiShoppingBag size={24} />
                   </button>
                 </div>
               </div>

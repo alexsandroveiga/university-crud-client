@@ -1,5 +1,6 @@
 import { api } from "@/services";
 import { formatValue } from "@/utils";
+import { Container } from "./styles";
 import { Modal, Input } from "@/components";
 import { useDebounce } from "@/hooks";
 
@@ -31,17 +32,16 @@ type FormData = {
   quantity: number
 }
 
-type Props = {
-  debouncedSearchTerm: string
-}
-
-export function MotorcycleColumn({ debouncedSearchTerm }: Props) {
+export function MotorcycleColumn() {
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const debouncedSearchTerm = useDebounce(search, 500)
   const [modalIsVisible, setModalIsVisible] = useState(false)
   const [selectedMotorcycle, setSelectedMotorcycle] = useState<Motorcycle>()
 
-  const { data, refetch, isLoading, error } = useQuery(['motorcycleData', debouncedSearchTerm], async () => {
+  const { data, refetch, isLoading, error } = useQuery(['motorcycleData', page, debouncedSearchTerm], async () => {
     return api.get<Motorcycle[]>('/motorcycles', {
-      params: { per_page: 50, search: debouncedSearchTerm }
+      params: { per_page: 5, page: page, search: debouncedSearchTerm }
     })
   })
   const handleAdd = useCallback(async (data: FormData, { reset }) => {
@@ -77,7 +77,7 @@ export function MotorcycleColumn({ debouncedSearchTerm }: Props) {
   const motos = data?.data || []
 
   return (
-    <>
+    <Container>
       <Modal
         isVisible={modalIsVisible}
         onClose={() => setModalIsVisible(false)}
@@ -109,8 +109,13 @@ export function MotorcycleColumn({ debouncedSearchTerm }: Props) {
           <button type="submit">Cadastrar</button>
         </Form>
       </Modal>
-      <div className="item full">
-        <button onClick={() => setModalIsVisible(true)} className="full"><FiPlusCircle size={22} /> Cadastrar motocicleta</button>
+      <div className="column-header">
+        <h1><span>&bull;</span> Nossas motocicletas</h1>
+        <em />
+        <input type="text" placeholder="Buscar" onChange={e => setSearch(e.target.value)} />
+        <button onClick={() => setModalIsVisible(true)}><FiPlusCircle size={22} /></button>
+        <button onClick={() => setPage(page - 1)} disabled={page <= 1}><FiArrowLeftCircle size={22} /></button>
+        <button onClick={() => setPage(page + 1)} disabled={page >= Number(data?.headers['x-total-pages'])}><FiArrowRightCircle size={22} /></button>
       </div>
       {error && (
         <div className="message">
@@ -142,6 +147,6 @@ export function MotorcycleColumn({ debouncedSearchTerm }: Props) {
           </div>
         </div>
       ))}
-    </>
+    </Container>
   )
 }
