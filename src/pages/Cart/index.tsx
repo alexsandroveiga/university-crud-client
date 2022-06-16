@@ -1,19 +1,20 @@
 import { Container, SubNav, Items } from "./styles"
-import { useCart } from "@/contexts"
+import { useAuth, useCart } from "@/contexts"
 import { api } from "@/services"
 import { Header } from "@/components"
-
-import { FiLogOut, FiMenu, FiMinusCircle, FiPlusCircle, FiShoppingBag, FiShoppingCart, FiTrash, FiTrash2, FiUsers, FiXCircle } from "react-icons/fi"
 import { formatValue } from "@/utils"
-import { Link, useLocation } from "react-router-dom"
+
+import { FiAlertCircle, FiMenu, FiMinusCircle, FiPlusCircle, FiShoppingBag, FiTrash2 } from "react-icons/fi"
+import { Link } from "react-router-dom"
 import { toast } from "react-toastify"
 
 export function Cart() {
   const { cart, increaseQuantity, decreaseQuantity, total, removeFromCart, emptyCart } = useCart();
+  const { customer } = useAuth()
 
   async function order() {
     await api.post('/orders', {
-      customer: 'b579b58a-21e8-42f1-babb-540f22652d19',
+      customer: customer?.id,
       motorcycles: cart.map((cartItem) => ({
         motorcycle: cartItem.item.id,
         quantity: cartItem.quantity,
@@ -35,6 +36,11 @@ export function Cart() {
       </SubNav>
       <main>
         <Items>
+          {!customer && (
+            <div className="empty">
+              <FiAlertCircle size={22} /> Você precisa estar logado para comprar!
+            </div>
+          )}
           {!cart.length && (
             <div className="empty">
               <FiShoppingBag size={22} /> Carrinho vazio
@@ -63,7 +69,7 @@ export function Cart() {
               <h1>{formatValue(Number(total))}</h1>
             </div>
             <Link to="/store">Continuar comprando</Link>
-            <button onClick={order} disabled={cart.length === 0}>Finalizar compra</button>
+            <button onClick={order} disabled={cart.length === 0 || !customer}>Finalizar compra</button>
           </div> 
         </Items>  
       </main>

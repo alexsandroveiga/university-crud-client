@@ -1,5 +1,5 @@
 import { AppRoutes } from '@/routes'
-import { StoreProvider } from '@/contexts';
+import { AuthProvider, StoreProvider } from '@/contexts';
 import { QueryClient, QueryClientProvider } from 'react-query'
 import 'App.css'
 
@@ -10,12 +10,14 @@ const queryClient = new QueryClient()
 
 function App() {
   return (
-    <StoreProvider>
-      <QueryClientProvider client={queryClient}>
-        <AppRoutes />
-        <ToastContainer />
-      </QueryClientProvider>
-    </StoreProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>        
+        <StoreProvider>
+          <AppRoutes />
+          <ToastContainer />
+        </StoreProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   )
 }
 

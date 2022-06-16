@@ -41,9 +41,11 @@ export const Container = styled.div`
       border-radius: 0.5rem;
       font-size: 1rem;
       font-weight: 500;
+      cursor: pointer;
 
       &:disabled {
         opacity: 0.6;
+        cursor: initial;
       }
     }
   }

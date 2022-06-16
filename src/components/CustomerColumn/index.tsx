@@ -5,10 +5,11 @@ import { useDebounce } from "@/hooks";
 
 import { useQuery } from "react-query";
 import { useCallback, useState } from "react";
-import { FiAlertCircle, FiArrowLeftCircle, FiArrowRightCircle, FiEdit3, FiInfo, FiPlusCircle, FiSearch, FiXCircle } from "react-icons/fi"
+import { FiAlertCircle, FiArrowLeftCircle, FiArrowRightCircle, FiEdit3, FiInfo, FiLogIn, FiLogOut, FiPlusCircle, FiSearch, FiXCircle } from "react-icons/fi"
 import { toast } from "react-toastify";
 import { Form } from "@unform/web";
 import { ImSpinner8 } from "react-icons/im";
+import { useAuth } from "@/contexts";
 
 type Customer = {
   id: string
@@ -42,6 +43,7 @@ type Props = {
 }
 
 export function CustomerColumn({ debouncedSearchTerm }: Props) {
+  const { login, logout, customer: loggedCustomer } = useAuth();
   const [modalIsVisible, setModalIsVisible] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer>()
   const { data, refetch, isLoading, error } = useQuery(['customerData', debouncedSearchTerm], async () => {
@@ -150,6 +152,11 @@ export function CustomerColumn({ debouncedSearchTerm }: Props) {
             </div>
           </div>
           <div className="actions">
+            {customer.id === loggedCustomer?.id ? (
+              <button onClick={() => logout}><FiLogOut size={22} /></button>
+            ) : (
+              <button onClick={() => login(customer)}><FiLogIn size={22} /></button>
+            )}            
             <button onClick={() => setSelectedCustomer(customer)}><FiEdit3 size={22} /></button>
             <button onClick={() => handleDelete(customer.id)}><FiXCircle size={22} /></button>
           </div>

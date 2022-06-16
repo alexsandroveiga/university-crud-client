@@ -66,7 +66,7 @@ export function Order() {
       refetch()
       toast('Compra cancelada com sucesso!', { type: 'success' })
     } catch(err) {
-      toast('Erro ao cancelar cliente!', { type: 'error' })
+      toast('Erro ao cancelar compra!', { type: 'error' })
     }
   }
 
