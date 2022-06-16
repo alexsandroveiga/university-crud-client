@@ -3,8 +3,8 @@ import { api } from "@/services";
 import { useQuery } from "react-query";
 import { FiAlertCircle, FiInfo, FiXCircle } from "react-icons/fi"
 import { toast } from "react-toastify";
-import { Form } from "@unform/web";
 import { ImSpinner8 } from "react-icons/im";
+import { formatValue } from "@/utils";
 
 type Customer = {
   id: string
@@ -35,22 +35,11 @@ type Order = {
   id: string
   customer: Customer
   motorcycles: Array<{
+    id: string
     motorcycle: Motorcycle
     quantity: number
+    price: number
   }>
-}
-
-type FormData = {
-  name: string
-  email: string
-  gender: string
-  identifier: string
-  address: string
-  phone: string
-  state: string
-  city: string
-  zip_code: string
-  avatar_url: string
 }
 
 export function Order() {
@@ -88,19 +77,19 @@ export function Order() {
         <div className="message">
           <FiInfo size={32} /> Nenhuma compra feita.
         </div>
-      ) : orders?.map((order, index) => (
+      ) : orders?.map(order => (
         <div key={order.id} className="item">
           <div className="content">
-            <img src={!order.customer.avatar_url ? `https://picsum.photos/id/${index + 1}/500/500` : order.customer.avatar_url} width="100" height="auto" />
+            <img src={order.customer.avatar_url} width="100" height="auto" />
             <div className="info">
               <h1>{order.customer.name}</h1>
               <p>{order.customer.email}</p>
-              <p className="featured">Compras</p>
-              {order.motorcycles.map(({ motorcycle: moto, quantity }) => (
-                <div key={moto.id} className="moto">
-                  <img src={!moto.image_url ? `https://picsum.photos/id/${index + 1}/500/500` : moto.image_url} width="100" height="auto" />
+              <p className="featured">{formatValue(order.motorcycles.reduce((acumulator, { price }) => acumulator + Number(price), 0))}</p>
+              {order.motorcycles.map(({ quantity, id, motorcycle }) => (
+                <div key={id} className="moto">
+                  <img src={motorcycle?.image_url} width="100" height="auto" />
                   <div>
-                    <h1>{moto.brand} - {moto.model}</h1>
+                    <h1>{motorcycle?.brand} - {motorcycle?.model}</h1>
                     <span>{quantity} {quantity > 1 ? 'unidades' : 'unidade'}</span>
                   </div>
                 </div>

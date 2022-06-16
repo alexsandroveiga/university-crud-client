@@ -15,7 +15,7 @@ export function Cart() {
   async function order() {
     await api.post('/orders', {
       customer: customer?.id,
-      motorcycles: cart.map((cartItem) => ({
+      orders: cart.map((cartItem) => ({
         motorcycle: cartItem.item.id,
         quantity: cartItem.quantity,
         price: Number(cartItem.item.price) * cartItem.quantity
